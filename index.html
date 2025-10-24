@@ -141,21 +141,21 @@
     <div class="container">
         <h1>Tutorial: Código Hamming (SEC - Single Error Correction)</h1>
         
-        <h2>Principio de funcionamiento</h2>
+        <h2>Principio de Funcionamiento</h2>
         
-        <p>El código Hamming es un método de corrección de errores que permite detectar y corregir errores de un solo bit mediante la adición de bits de comprobación redundantes.</p>
+        <p>El código Hamming es un código de corrección de errores que permite detectar y corregir errores de un solo bit mediante la adición de bits de comprobación (paridad) redundantes.</p>
         
-        <h3>Fundamentos generales:</h3>
+        <h3>Fundamentos:</h3>
         <ol>
-            <li><strong>Bits de comprobación:</strong> Para una palabra de M bits de datos, se agregan K bits de comprobación donde 2^K - 1 ≥ M + K.</li>
-            <li><strong>Posiciones especiales:</strong> Los bits de comprobación se colocan en posiciones que son potencias de 2 (1, 2, 4, 8, 16...).</li>
-            <li><strong>Verificación por grupos:</strong> Cada bit de comprobación verifica un conjunto de bits según su representación binaria.</li>
-            <li><strong>Palabra de síndrome:</strong> Al leer, se recalculan los bits de comprobación y se comparan con los almacenados. La diferencia (síndrome) indica la posición del error.</li>
+            <li><strong>Bits de comprobación:</strong> Para una palabra de M bits de datos, se agregan K bits de comprobación donde 2^K - 1 ≥ M + K</li>
+            <li><strong>Posiciones especiales:</strong> Los bits de comprobación se colocan en posiciones que son potencias de 2 (1, 2, 4, 8, 16...)</li>
+            <li><strong>Verificación por grupos:</strong> Cada bit de comprobación verifica un grupo específico de bits según su representación binaria</li>
+            <li><strong>Palabra de síndrome:</strong> Al leer, se recalculan los bits de comprobación y se comparan con los almacenados. La diferencia (síndrome) indica la posición del error</li>
         </ol>
 
         <div class="formula">
-            Para W=8 bits de datos: 2^K - 1 ≥ 8 + K → K = 4 bits de comprobación.
-            <br>Total de bits almacenados: W + K = 8 + 4 = 12 bits.
+            Para W=8 bits de datos: 2^K - 1 ≥ 8 + K → K = 4 bits de comprobación
+            <br>Total de bits almacenados: W + K = 8 + 4 = 12 bits
         </div>
 
         <h3>Estructura de posiciones para W=8:</h3>
@@ -174,46 +174,330 @@
             </tr>
         </table>
 
-        <h2>Aplicación del código Hamming</h2>
+        <h3>Reglas de verificación:</h3>
+        <table>
+            <tr>
+                <th>Bit de Comprobación</th>
+                <th>Posiciones que verifica</th>
+                <th>Regla</th>
+            </tr>
+            <tr>
+                <td>C1 (pos 1)</td>
+                <td>1, 3, 5, 7, 9, 11</td>
+                <td>Posiciones con bit 0 = 1</td>
+            </tr>
+            <tr>
+                <td>C2 (pos 2)</td>
+                <td>2, 3, 6, 7, 10, 11</td>
+                <td>Posiciones con bit 1 = 1</td>
+            </tr>
+            <tr>
+                <td>C4 (pos 4)</td>
+                <td>4, 5, 6, 7, 12</td>
+                <td>Posiciones con bit 2 = 1</td>
+            </tr>
+            <tr>
+                <td>C8 (pos 8)</td>
+                <td>8, 9, 10, 11, 12</td>
+                <td>Posiciones con bit 3 = 1</td>
+            </tr>
+        </table>
+
+        <hr>
+
+        <h2>Aplicar código Hamming a 10110110</h2>
 
         <div class="step">
-            <strong>PASO 1:</strong> Identificar los bits de datos y colocarlos en las posiciones correspondientes.
+            <strong>PASO 1:</strong> Identificar los bits de datos
+            <div class="calculation">
+                Dato original: D8 D7 D6 D5 D4 D3 D2 D1 = 1 0 1 1 0 1 1 0
+            </div>
         </div>
 
         <div class="step">
-            <strong>PASO 2:</strong> Calcular los bits de comprobación (C1, C2, C4, C8) mediante XOR según las posiciones que cada uno verifica.
+            <strong>PASO 2:</strong> Colocar los bits de datos en sus posiciones correspondientes
+        </div>
+
+        <table>
+            <tr>
+                <th>Posición</th>
+                <td>12</td><td>11</td><td>10</td><td>9</td><td>8</td><td>7</td><td>6</td><td>5</td><td>4</td><td>3</td><td>2</td><td>1</td>
+            </tr>
+            <tr>
+                <th>Tipo</th>
+                <td>D8</td><td>D7</td><td>D6</td><td>D5</td><td>C8</td><td>D4</td><td>D3</td><td>D2</td><td>C4</td><td>D1</td><td>C2</td><td>C1</td>
+            </tr>
+            <tr>
+                <th>Valor</th>
+                <td>1</td><td>0</td><td>1</td><td>1</td><td>?</td><td>0</td><td>1</td><td>1</td><td>?</td><td>0</td><td>?</td><td>?</td>
+            </tr>
+        </table>
+
+        <div class="step">
+            <strong>PASO 3:</strong> Calcular C1 (verifica posiciones 1, 3, 5, 7, 9, 11)
+            <div class="calculation">
+                C1 = D1 ⊕ D2 ⊕ D4 ⊕ D5 ⊕ D7
+                <br>C1 = 0 ⊕ 1 ⊕ 0 ⊕ 1 ⊕ 0 = 0
+            </div>
+        </div>
+
+        <div class="step">
+            <strong>PASO 4:</strong> Calcular C2 (verifica posiciones 2, 3, 6, 7, 10, 11)
+            <div class="calculation">
+                C2 = D1 ⊕ D3 ⊕ D4 ⊕ D6 ⊕ D7
+                <br>C2 = 0 ⊕ 1 ⊕ 0 ⊕ 1 ⊕ 0 = 0
+            </div>
+        </div>
+
+        <div class="step">
+            <strong>PASO 5:</strong> Calcular C4 (verifica posiciones 4, 5, 6, 7, 12)
+            <div class="calculation">
+                C4 = D2 ⊕ D3 ⊕ D4 ⊕ D8
+                <br>C4 = 1 ⊕ 1 ⊕ 0 ⊕ 1 = 1
+            </div>
+        </div>
+
+        <div class="step">
+            <strong>PASO 6:</strong> Calcular C8 (verifica posiciones 8, 9, 10, 11, 12)
+            <div class="calculation">
+                C8 = D5 ⊕ D6 ⊕ D7 ⊕ D8
+                <br>C8 = 1 ⊕ 1 ⊕ 0 ⊕ 1 = 1
+            </div>
         </div>
 
         <div class="result">
-            Como resultado, se obtiene una palabra de 12 bits que combina los datos y los bits de comprobación.
-            <br><br>
-            Esta palabra se almacena en memoria y permite detectar y corregir un error de un solo bit si ocurre.
+            Palabra completa con código Hamming (12 bits):
+            <div class="bit-array" style="margin-top: 15px;">
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 12<br>D8</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">0</div>
+                    <div class="label">Pos 11<br>D7</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 10<br>D6</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 9<br>D5</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">1</div>
+                    <div class="label">Pos 8<br>C8</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">0</div>
+                    <div class="label">Pos 7<br>D4</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 6<br>D3</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 5<br>D2</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">1</div>
+                    <div class="label">Pos 4<br>C4</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">0</div>
+                    <div class="label">Pos 3<br>D1</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">0</div>
+                    <div class="label">Pos 2<br>C2</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">0</div>
+                    <div class="label">Pos 1<br>C1</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 18px;">
+                Respuesta: <strong>1 0 1 1 1 0 1 1 1 0 0 0</strong>
+            </div>
         </div>
-
-        <h2>Verificación y detección de errores</h2>
 
         <div class="note">
-            Si la palabra almacenada sufre una alteración en uno de sus bits, se puede detectar el error recalculando los bits de comprobación y comparándolos con los almacenados.
+            Esta palabra se almacena en memoria. Si ocurre un error en algún bit durante el almacenamiento o la lectura, el código Hamming permitirá detectarlo y corregirlo.
+        </div>
+
+        <hr>
+
+        <h2>Verificar la palabra 10111110 y detectar el error</h2>
+
+        <div class="note">
+            <strong>Contexto:</strong> La palabra del anterior (10110110) fue codificada y almacenada en memoria como: 1 0 1 1 1 0 1 1 1 0 0 0
+            <br><br>
+            Al leer la memoria, se recibió la palabra con datos: <strong>10111110</strong>
+            <br><br>
+            Debemos verificar si hay error mediante el cálculo del síndrome usando XOR entre los bits de comprobación almacenados y los recalculados.
         </div>
 
         <div class="step">
-            <strong>PASO 1:</strong> Recalcular los bits de comprobación con los datos recibidos.
+            <strong>PASO 1:</strong> Bits de comprobación almacenados (del ejercicio anterior)
+            <div class="calculation">
+                Palabra almacenada: 1 0 1 1 1 0 1 1 1 0 0 0
+                <br><br>
+                Bits de comprobación ALMACENADOS:
+                <br>C1 = 0 (posición 1)
+                <br>C2 = 0 (posición 2)
+                <br>C4 = 1 (posición 4)
+                <br>C8 = 1 (posición 8)
+            </div>
         </div>
 
         <div class="step">
-            <strong>PASO 2:</strong> Comparar los bits recalculados con los almacenados para obtener el <strong>síndrome</strong>.
+            <strong>PASO 2:</strong> Identificar los datos recibidos
+            <div class="calculation">
+                Palabra recibida (solo datos): 1 0 1 1 1 1 1 0
+                <br>Esto es: D8 D7 D6 D5 D4 D3 D2 D1 = 1 0 1 1 1 1 1 0
+            </div>
         </div>
 
         <div class="step">
-            <strong>PASO 3:</strong> Interpretar el síndrome: su valor binario indica la posición del bit erróneo dentro de la palabra.
+            <strong>PASO 3:</strong> RECALCULAR bits de comprobación basados en los datos recibidos
+            <p>Calculamos nuevos bits de comprobación usando SOLO los datos recibidos:</p>
+            
+            <div class="calculation">
+                <strong>C1' (recalculado):</strong> Posiciones (3, 5, 7, 9, 11)
+                <br>C1' = D1 ⊕ D2 ⊕ D4 ⊕ D5 ⊕ D7
+                <br>C1' = 0 ⊕ 1 ⊕ <strong>1</strong> ⊕ 1 ⊕ 0 = <strong>1</strong>
+            </div>
+
+            <div class="calculation">
+                <strong>C2' (recalculado):</strong> Posiciones (3, 6, 7, 10, 11)
+                <br>C2' = D1 ⊕ D3 ⊕ D4 ⊕ D6 ⊕ D7
+                <br>C2' = 0 ⊕ 1 ⊕ <strong>1</strong> ⊕ 1 ⊕ 0 = <strong>1</strong>
+            </div>
+
+            <div class="calculation">
+                <strong>C4' (recalculado):</strong> Posiciones (5, 6, 7, 12)
+                <br>C4' = D2 ⊕ D3 ⊕ D4 ⊕ D8
+                <br>C4' = 1 ⊕ 1 ⊕ <strong>1</strong> ⊕ 1 = <strong>0</strong>
+            </div>
+
+            <div class="calculation">
+                <strong>C8' (recalculado):</strong> Posiciones (9, 10, 11, 12)
+                <br>C8' = D5 ⊕ D6 ⊕ D7 ⊕ D8
+                <br>C8' = 1 ⊕ 1 ⊕ 0 ⊕ 1 = <strong>1</strong>
+            </div>
+        </div>
+
+        <div class="step">
+            <strong>PASO 4:</strong> Calcular el SÍNDROME mediante XOR
+            <p>El síndrome se obtiene haciendo XOR entre los bits almacenados y los recalculados:</p>
+            
+            <table>
+                <tr>
+                    <th>Bit</th>
+                    <th>Almacenado (anterior)</th>
+                    <th>Recalculado (ahora)</th>
+                    <th>Síndrome (XOR)</th>
+                </tr>
+                <tr>
+                    <td><strong>C1</strong></td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td><strong>S1 = 0 ⊕ 1 = 1</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>C2</strong></td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td><strong>S2 = 0 ⊕ 1 = 1</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>C4</strong></td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td><strong>S4 = 1 ⊕ 0 = 1</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>C8</strong></td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td><strong>S8 = 1 ⊕ 1 = 0</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <strong>PASO 5:</strong> Interpretar la palabra de síndrome
+            <div class="calculation">
+                Palabra de síndrome: S8 S4 S2 S1 = <strong>0 1 1 1</strong>
+                <br><br>
+                Conversión a decimal: 0×8 + 1×4 + 1×2 + 1×1 = <strong>7</strong>
+            </div>
         </div>
 
         <div class="error-result">
-            Si el síndrome es distinto de 0000, el número binario indica la posición del error.
+            DETECCIÓN Y CORRECCIÓN DEL ERROR:
             <br><br>
-            Por ejemplo, un síndrome <strong>0111</strong> (decimal 7) indica un error en la posición 7.
+            Síndrome = 7 → El error está en la posición 7
             <br><br>
-            Para corregirlo, basta con invertir el bit correspondiente.
+            Posición 7 corresponde a: <strong>D4</strong>
+            <br><br>
+            Bit erróneo: D4 = 1 (debería ser 0)
+            <br><br>
+            <div class="bit-array" style="margin-top: 15px;">
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 12<br>D8</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">0</div>
+                    <div class="label">Pos 11<br>D7</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 10<br>D6</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 9<br>D5</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">1</div>
+                    <div class="label">Pos 8<br>C8</div>
+                </div>
+                <div>
+                    <div class="bit-box error-bit">1</div>
+                    <div class="label">Pos 7<br>D4 ERROR</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 6<br>D3</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">1</div>
+                    <div class="label">Pos 5<br>D2</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">1</div>
+                    <div class="label">Pos 4<br>C4</div>
+                </div>
+                <div>
+                    <div class="bit-box data-bit">0</div>
+                    <div class="label">Pos 3<br>D1</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">0</div>
+                    <div class="label">Pos 2<br>C2</div>
+                </div>
+                <div>
+                    <div class="bit-box check-bit">0</div>
+                    <div class="label">Pos 1<br>C1</div>
+                </div>
+            </div>
+            <br>
+            Corrección: Invertir el bit en posición 7 (D4: 1 → 0)
+            <br><br>
+            Dato corregido: <strong>10110110</strong> (dato original del anterior)
         </div>
 
         <hr>
@@ -237,22 +521,25 @@
                     <td>0111</td>
                     <td>0111</td>
                     <td>7</td>
-                    <td>Error en posición 7</td>
+                    <td>Error en posición 7 (D4)</td>
                 </tr>
                 <tr>
                     <td>Cualquier otro</td>
                     <td>XXXX</td>
-                    <td>1–15</td>
+                    <td>1-15</td>
                     <td>Error en posición indicada</td>
                 </tr>
             </table>
 
             <h3>Resumen de conceptos clave:</h3>
             <ul>
-                <li>El síndrome se obtiene comparando bits de comprobación almacenados y recalculados.</li>
-                <li>Un síndrome distinto de 0000 indica la posición del error.</li>
-                <li>El código Hamming permite corregir un error simple (SEC).</li>
-                <li>La posición del error se obtiene interpretando el síndrome en binario.</li>
+                <li>El síndrome se calcula recalculando cada bit de comprobación sobre la palabra recibida</li>
+                <li>Si S1=1, el bit erróneo está en una posición impar (bit 0 = 1 en binario)</li>
+                <li>Si S2=1, el bit erróneo tiene el bit 1 = 1 en su posición binaria</li>
+                <li>Si S4=1, el bit erróneo tiene el bit 2 = 1 en su posición binaria</li>
+                <li>Si S8=1, el bit erróneo tiene el bit 3 = 1 en su posición binaria</li>
+                <li>La combinación S8 S4 S2 S1 = 0111 = 7 indica exactamente la posición del error</li>
+                <li>Para corregir: se invierte el bit en la posición indicada por el síndrome</li>
             </ul>
         </div>
     </div>

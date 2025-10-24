@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Código Hamming</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .formula {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .bit-array {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .bit-box {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            background-color: white;
+        }
+        .check-bit {
+            background-color: #e8f4f8;
+            border-color: #2980b9;
+        }
+        .data-bit {
+            background-color: #fff9e6;
+            border-color: #f39c12;
+        }
+        .error-bit {
+            background-color: #ffebee;
+            border-color: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .label {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #666;
+        }
+        .step {
+            background-color: #e8f8f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+        }
+        .note {
+            background-color: #fff3cd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+        }
+        .calculation {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .result {
+            background-color: #d4edda;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+            font-weight: bold;
+        }
+        .error-result {
+            background-color: #f8d7da;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tutorial: Código Hamming (SEC - Single Error Correction)</h1>
+        
+        <h2>Principio de funcionamiento</h2>
+        
+        <p>El código Hamming es un método de corrección de errores que permite detectar y corregir errores de un solo bit mediante la adición de bits de comprobación redundantes.</p>
+        
+        <h3>Fundamentos generales:</h3>
+        <ol>
+            <li><strong>Bits de comprobación:</strong> Para una palabra de M bits de datos, se agregan K bits de comprobación donde 2^K - 1 ≥ M + K.</li>
+            <li><strong>Posiciones especiales:</strong> Los bits de comprobación se colocan en posiciones que son potencias de 2 (1, 2, 4, 8, 16...).</li>
+            <li><strong>Verificación por grupos:</strong> Cada bit de comprobación verifica un conjunto de bits según su representación binaria.</li>
+            <li><strong>Palabra de síndrome:</strong> Al leer, se recalculan los bits de comprobación y se comparan con los almacenados. La diferencia (síndrome) indica la posición del error.</li>
+        </ol>
+
+        <div class="formula">
+            Para W=8 bits de datos: 2^K - 1 ≥ 8 + K → K = 4 bits de comprobación.
+            <br>Total de bits almacenados: W + K = 8 + 4 = 12 bits.
+        </div>
+
+        <h3>Estructura de posiciones para W=8:</h3>
+        <table>
+            <tr>
+                <th>Posición</th>
+                <th>12</th><th>11</th><th>10</th><th>9</th><th>8</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th>
+            </tr>
+            <tr>
+                <th>Binario</th>
+                <td>1100</td><td>1011</td><td>1010</td><td>1001</td><td>1000</td><td>0111</td><td>0110</td><td>0101</td><td>0100</td><td>0011</td><td>0010</td><td>0001</td>
+            </tr>
+            <tr>
+                <th>Contenido</th>
+                <td>D8</td><td>D7</td><td>D6</td><td>D5</td><td>C8</td><td>D4</td><td>D3</td><td>D2</td><td>C4</td><td>D1</td><td>C2</td><td>C1</td>
+            </tr>
+        </table>
+
+        <h2>Aplicación del código Hamming</h2>
+
+        <div class="step">
+            <strong>PASO 1:</strong> Identificar los bits de datos y colocarlos en las posiciones correspondientes.
+        </div>
+
+        <div class="step">
+            <strong>PASO 2:</strong> Calcular los bits de comprobación (C1, C2, C4, C8) mediante XOR según las posiciones que cada uno verifica.
+        </div>
+
+        <div class="result">
+            Como resultado, se obtiene una palabra de 12 bits que combina los datos y los bits de comprobación.
+            <br><br>
+            Esta palabra se almacena en memoria y permite detectar y corregir un error de un solo bit si ocurre.
+        </div>
+
+        <h2>Verificación y detección de errores</h2>
+
+        <div class="note">
+            Si la palabra almacenada sufre una alteración en uno de sus bits, se puede detectar el error recalculando los bits de comprobación y comparándolos con los almacenados.
+        </div>
+
+        <div class="step">
+            <strong>PASO 1:</strong> Recalcular los bits de comprobación con los datos recibidos.
+        </div>
+
+        <div class="step">
+            <strong>PASO 2:</strong> Comparar los bits recalculados con los almacenados para obtener el <strong>síndrome</strong>.
+        </div>
+
+        <div class="step">
+            <strong>PASO 3:</strong> Interpretar el síndrome: su valor binario indica la posición del bit erróneo dentro de la palabra.
+        </div>
+
+        <div class="error-result">
+            Si el síndrome es distinto de 0000, el número binario indica la posición del error.
+            <br><br>
+            Por ejemplo, un síndrome <strong>0111</strong> (decimal 7) indica un error en la posición 7.
+            <br><br>
+            Para corregirlo, basta con invertir el bit correspondiente.
+        </div>
+
+        <hr>
+        
+        <div style="background-color: #e8f4f8; padding: 20px; border-radius: 5px; margin-top: 30px;">
+            <h3>Tabla resumen del proceso de detección:</h3>
+            <table>
+                <tr>
+                    <th>Síndrome</th>
+                    <th>Binario</th>
+                    <th>Decimal</th>
+                    <th>Significado</th>
+                </tr>
+                <tr>
+                    <td>0000</td>
+                    <td>0000</td>
+                    <td>0</td>
+                    <td>No hay error</td>
+                </tr>
+                <tr style="background-color: #fff3cd;">
+                    <td>0111</td>
+                    <td>0111</td>
+                    <td>7</td>
+                    <td>Error en posición 7</td>
+                </tr>
+                <tr>
+                    <td>Cualquier otro</td>
+                    <td>XXXX</td>
+                    <td>1–15</td>
+                    <td>Error en posición indicada</td>
+                </tr>
+            </table>
+
+            <h3>Resumen de conceptos clave:</h3>
+            <ul>
+                <li>El síndrome se obtiene comparando bits de comprobación almacenados y recalculados.</li>
+                <li>Un síndrome distinto de 0000 indica la posición del error.</li>
+                <li>El código Hamming permite corregir un error simple (SEC).</li>
+                <li>La posición del error se obtiene interpretando el síndrome en binario.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
